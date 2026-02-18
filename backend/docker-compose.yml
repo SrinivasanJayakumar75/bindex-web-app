@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bindex-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: bindex
+      MYSQL_ROOT_PASSWORD: "@Srini_75"
+    ports:
+      - "3306:3306"
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: bindex-mailhog
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"
