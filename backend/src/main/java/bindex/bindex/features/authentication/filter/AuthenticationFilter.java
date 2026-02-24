@@ -45,16 +45,26 @@ public class AuthenticationFilter extends HttpFilter {
             return;
         }
 
-        String path = request.getRequestURI();
+String path = request.getRequestURI();
 
-        if (unsecuredEndpoints.contains(path)) {
-            chain.doFilter(request, response);
-            return;
-        }
+if (unsecuredEndpoints.stream().anyMatch(path::startsWith)) {
+    chain.doFilter(request, response);
+    return;
+}
 
         try{
+            // Determine the request path relative to the application context
+            // so unsecured endpoints like "/api/v1/authentication/register"
+            // are correctly detected even when the app has a context path.
+            String requestPath = request.getRequestURI().substring(request.getContextPath().length());
+
+            if (unsecuredEndpoints.stream().anyMatch(requestPath::startsWith)) {
+                chain.doFilter(request, response);
+                return;
+            }
+
             String authorization = request.getHeader("Authorization");
-            if(authorization == null || !authorization.startsWith("Bearer")){
+            if(authorization == null || !authorization.startsWith("Bearer ")){
                 throw new ServletException("Token missing");
             }
 
